@@ -16,6 +16,6 @@ _lib.vector_add.restype = None
 def vector_add(a: np.ndarray, b: np.ndarray) -> np.ndarray:
     assert a.dtype == np.int32 and b.dtype == np.int32
     assert a.shape == b.shape
-
-    c = _lib.vector_add(a, b, a.size)
+    c = np.empty_like(a)
+    _lib.vector_add(a, b, c, a.size)
     return c

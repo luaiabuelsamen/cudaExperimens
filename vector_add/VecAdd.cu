@@ -9,10 +9,9 @@ __global__ void vector_add_kernel(const int* a, const int* b, int* c, int n){
     }
 }
 
-extern "C" int* vector_add(const int* h_a, const int* h_b, int n){
+extern "C" void vector_add(const int* h_a, const int* h_b, int* h_c, int n){
     size_t bytes = sizeof(int) * n;
-    int *a_d, *b_d, *c_d, *h_c;
-    h_c = (int*)malloc(bytes);
+    int *a_d, *b_d, *c_d;
     cudaMalloc((void**)&a_d, bytes);
     cudaMalloc((void**)&b_d, bytes);
     cudaMalloc((void**)&c_d, bytes);
@@ -21,7 +20,7 @@ extern "C" int* vector_add(const int* h_a, const int* h_b, int n){
     cudaMemcpy(b_d, h_b, bytes, cudaMemcpyHostToDevice);
 
     int threadsPerBlock = 256;
-    int blocks = n * (+ threadsPerBlock - 1)/ threadsPerBlock;
+    int blocks = (n + threadsPerBlock - 1) / threadsPerBlock;
     vector_add_kernel<<<blocks, threadsPerBlock>>>(a_d, b_d, c_d, n);
     cudaDeviceSynchronize();
 
@@ -29,9 +28,6 @@ extern "C" int* vector_add(const int* h_a, const int* h_b, int n){
     cudaFree(a_d);
     cudaFree(b_d);
     cudaFree(c_d);
-    free(h_c);
-
-    return h_c;
 }
 
 // int main(){
